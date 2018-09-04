@@ -68,8 +68,7 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
 
 
 var mysql = require('mysql');
-var searchtext = 'A%';
-var sqlsearch='SELECT name, facebook_url FROM Celeb where name LIKE ' + mysql.escape(searchtext)
+
 
 var con = mysql.createConnection({
   host: "localhost",
@@ -314,8 +313,9 @@ function receivedMessage(event) {
         break;					
 		
       default:
-        //sendTextMessage(senderID, messageText);
-		mysqlrequest(sqlsearch).then(function(response) {
+        //var sqlsearch='SELECT name, facebook_url FROM Celeb where name LIKE ' + mysql.escape(messageText);
+		//sendTextMessage(senderID, messageText);
+		mysqlrequest('SELECT name, facebook_url FROM Celeb where name LIKE ' + mysql.escape(messageText)).then(function(response) {
 				console.log("Success! ... ");
 				console.log(response);
 				sendTextMessage(senderID, response[0].name + ' Facebook oldala: ' +  response[0].facebook_url);
