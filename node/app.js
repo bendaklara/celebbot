@@ -83,17 +83,27 @@ function mysqlrequest(sql) {
     // Do the usual XHR stuff
 
 		con.connect(function(err) {
-		  if (err) {reject(err);}
+		  if (err) {
+			  reject(err);
+			  con.end();
+			  }
 		  else {
 			con.query(sql, function (err, result, fields) {
-			if (err) {reject(err);}
+			if (err) {
+				reject(err); 
+				con.end();
+			}
 			else{
 				console.log('SQL result is returned.')
 				resolve(result);
+				con.end();
+				console.log('SQL Connection ended');
+				
 			}
 		  });
 		  }
 		});
+
 
   });
 	
