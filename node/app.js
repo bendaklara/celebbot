@@ -281,14 +281,13 @@ function receivedMessage(event) {
       default:
 		mysql.createConnection(sqlconfig).then(function(conn){
 			connection = conn;
-			var result = connection.query('SELECT name, facebook_url FROM Celeb where name LIKE ' + mysql.escape(messageText));
+			var result = connection.query('SELECT name, facebook_url FROM Celeb where name LIKE ' + mysql.escape('%'+messageText+'%'));
 			console.log('Lefutott a lekérés.');
 			return result;
 		}).then(function(result){
 			//if (connection) connection.end();
-			// Logs out a list of hobbits
 			console.log(result);
-			console.log('Sikeeeeer.');
+			console.log(result.length);
 			sendTextMessage(senderID, result[0].name + ' Facebook oldala: ' +  result[0].facebook_url );
 		}).catch(function(error){
 			if (connection) connection.end(); 
