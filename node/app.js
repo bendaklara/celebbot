@@ -288,7 +288,14 @@ function receivedMessage(event) {
 			//if (connection) connection.end();
 			console.log(result);
 			console.log(result.length);
-			sendTextMessage(senderID, result[0].name + ' Facebook oldala: ' +  result[0].facebook_url );
+			if (result.length>0) {
+				for (var i = 0; i < result.length; i++) {
+					sendTextMessage(senderID, result[i].name + ' Facebook oldala: ' +  result[i].facebook_url );
+					}				
+			}
+			else {
+				sendTextMessage(senderID, 'Ezt a celebet nem találom. Próbálkozz egy másikkal!' );
+			}
 		}).catch(function(error){
 			if (connection) connection.end(); 
 			//if (connection) connection.end();
