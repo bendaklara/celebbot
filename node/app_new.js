@@ -16,10 +16,18 @@ const
   crypto = require('crypto'),
   express = require('express'),
   https = require('https'),
-  request = require('request'),
-  mysql = require('promise-mysql');
+  request = require('request');
+  mysql = require('mysql');
+
+var con = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "celeb"
+});
 
 
+  
 var app = express();
 app.set('port', process.env.PORT || 5003);
 app.set('view engine', 'ejs');
@@ -58,14 +66,19 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
   process.exit(1);
 }
 
-const sqlconfig={
-	host: "localhost",
-    user: "root",
-    password: "CeMwQNXH75arf4K7",
-    database: "celeb"	
-}
 
-var connection;
+var mysql = require('mysql');
+
+
+var con = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "CeMwQNXH75arf4K7",
+  database: "celeb"
+});
+
+
+
 
 /*
  * Use your own validation token. Check that the token used in the Webhook
@@ -279,30 +292,23 @@ function receivedMessage(event) {
         break;					
 		
       default:
-		mysql.createConnection(sqlconfig).then(function(conn){
-			connection = conn;
-			var result = connection.query('SELECT name, facebook_url FROM Celeb where name LIKE ' + mysql.escape(messageText));
-			console.log('Lefutott a lekérés.');
-			return result;
-		}).then(function(result){
-			//if (connection) connection.end();
-			// Logs out a list of hobbits
-			console.log(result);
-			console.log('Sikeeeeer.');
-			sendTextMessage(senderID, response[0].name + ' Facebook oldala: ' +  response[0].facebook_url );
-		}).catch(function(error){
-			if (connection) connection.end(); 
-			//if (connection) connection.end();
-			//if (connection && connection.end) connection.end();
-			//logs out the error
-			console.log('Hibaaaaa');
-		});	  
+        //var sqlsearch='SELECT name, facebook_url FROM Celeb where name LIKE ' + mysql.escape(messageText);
+		//sendTextMessage(senderID, messageText);
+		mysqlrequest('SELECT name, facebook_url FROM Celeb where name LIKE ' + mysql.escape(messageText)).then(function(response) {
+				console.log("Success! ... ");
+				console.log(response);
+				sendTextMessage(senderID, response[0].name + ' Facebook oldala: ' +  response[0].facebook_url);
+				
+			}, function(error) {
+				console.log("Mysql Query returned an error.");
+				console.log(error);
+	}
+);
 
-
-	}//switch end
+	}
 
   } else if (messageAttachments) {
-    sendTextMessage(senderID, "I can only handle text.");
+    sendTextMessage(senderID, "Message with attachment received");
   }
 }
 
