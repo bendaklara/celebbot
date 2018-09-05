@@ -17,17 +17,9 @@ const
   express = require('express'),
   https = require('https'),
   request = require('request');
-  mysql = require('mysql');
-
-var con = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "celeb"
-});
+  mysql = require('promise-mysql');
 
 
-  
 var app = express();
 app.set('port', process.env.PORT || 5003);
 app.set('view engine', 'ejs');
@@ -66,49 +58,12 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
   process.exit(1);
 }
 
+const SQL_CONFIG = (process.env.SQL_CONFIG) ?
+  (process.env.SQL_CONFIG) :
+  config.get('sqlConfig');
 
-var mysql = require('mysql');
+var connection;
 
-
-var con = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "CeMwQNXH75arf4K7",
-  database: "celeb"
-});
-
-
-function mysqlrequest(sql) {
-	return new Promise(function(resolve, reject) {
-    // Do the usual XHR stuff
-
-		con.connect(function(err) {
-		  if (err) {
-			  reject(err);
-			  con.end();
-			  }
-		  else {
-			con.query(sql, function (err, result, fields) {
-			if (err) {
-				reject(err); 
-				con.end();
-			}
-			else{
-				console.log('SQL result is returned.')
-				resolve(result);
-				con.end();
-				console.log('SQL Connection ended');
-				
-			}
-		  });
-		  }
-		});
-
-
-  });
-	
-	
-};
 
 
 /*
@@ -323,23 +278,30 @@ function receivedMessage(event) {
         break;					
 		
       default:
-        //var sqlsearch='SELECT name, facebook_url FROM Celeb where name LIKE ' + mysql.escape(messageText);
-		//sendTextMessage(senderID, messageText);
-		mysqlrequest('SELECT name, facebook_url FROM Celeb where name LIKE ' + mysql.escape(messageText)).then(function(response) {
-				console.log("Success! ... ");
-				console.log(response);
-				sendTextMessage(senderID, response[0].name + ' Facebook oldala: ' +  response[0].facebook_url);
-				
-			}, function(error) {
-				console.log("Mysql Query returned an error.");
-				console.log(error);
-	}
-);
+		mysql.createConnection(SQL_CONFIG).then(function(conn){
+			connection = conn;
+			var result = connection.query('SELECT name, facebook_url FROM Celeb where name LIKE ' + mysql.escape(messageText));
+			console.log('Lefutott a lekérés.');
+			return result;
+		}).then(function(result){
+			//if (connection) connection.end();
+			// Logs out a list of hobbits
+			console.log(result);
+			console.log('Sikeeeeer.');
+			sendTextMessage(senderID, result);
+		}).catch(function(error){
+			if (connection) connection.end(); 
+			//if (connection) connection.end();
+			//if (connection && connection.end) connection.end();
+			//logs out the error
+			console.log('Hibaaaaa');
+		});	  
 
-	}
+
+	}//switch end
 
   } else if (messageAttachments) {
-    sendTextMessage(senderID, "Message with attachment received");
+    sendTextMessage(senderID, "I can only handle text.");
   }
 }
 
