@@ -58,13 +58,14 @@ if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
   process.exit(1);
 }
 
-const SQL_CONFIG = (process.env.SQL_CONFIG) ?
-  (process.env.SQL_CONFIG) :
-  config.get('sqlConfig');
+const sqlconfig={
+	host: "localhost",
+    user: "root",
+    password: "CeMwQNXH75arf4K7",
+    database: "celeb"	
+}
 
 var connection;
-
-
 
 /*
  * Use your own validation token. Check that the token used in the Webhook
@@ -278,7 +279,7 @@ function receivedMessage(event) {
         break;					
 		
       default:
-		mysql.createConnection(SQL_CONFIG).then(function(conn){
+		mysql.createConnection(sqlconfig).then(function(conn){
 			connection = conn;
 			var result = connection.query('SELECT name, facebook_url FROM Celeb where name LIKE ' + mysql.escape(messageText));
 			console.log('Lefutott a lekérés.');
