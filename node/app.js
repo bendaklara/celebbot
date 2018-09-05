@@ -289,7 +289,8 @@ function receivedMessage(event) {
 			// Logs out a list of hobbits
 			console.log(result);
 			console.log('Sikeeeeer.');
-			sendTextMessage(senderID, response[0].name + ' Facebook oldala: ' +  response[0].facebook_url );
+			//sendTextMessage(senderID, response[0].name + ' Facebook oldala: ' +  response[0].facebook_url );
+			sendTextMessage(senderID, response.name + ' Facebook oldala: ' +  response.facebook_url );
 		}).catch(function(error){
 			if (connection) connection.end(); 
 			//if (connection) connection.end();
